@@ -1,7 +1,17 @@
+import { css } from '@emotion/css';
+import { Trans } from '@lingui/react';
+import saveAs from 'file-saver';
 import React from 'react';
 
-import { LogsDedupStrategy, LogsMetaItem, LogsMetaKind, LogRowModel } from '@grafana/data';
-import { Button, Tooltip, LogLabels } from '@grafana/ui';
+import {
+  dateTimeFormat,
+  dateTimeFormatISO,
+  LogRowModel,
+  LogsDedupStrategy,
+  LogsMetaItem,
+  LogsMetaKind,
+} from '@grafana/data';
+import { Button, LogLabels, Tooltip } from '@grafana/ui';
 import { MAX_CHARACTERS } from '@grafana/ui/src/components/Logs/LogRowMessage';
 
 import { MetaInfoText, MetaItemProps } from './MetaInfoText';
@@ -30,6 +40,27 @@ export const LogsMetaRow = React.memo(
     onEscapeNewlines,
     logRows,
   }: Props) => {
+    const exportLogsAsTxt = () => {
+      let textToDownload = '';
+
+      meta.forEach((metaItem) => {
+        const string = `${metaItem.label}: ${JSON.stringify(metaItem.value)}\n`;
+        textToDownload = textToDownload + string;
+      });
+      textToDownload = textToDownload + '\n\n';
+
+      logRows.forEach((row) => {
+        const newRow = dateTimeFormatISO(row.timeEpochMs) + '\t' + row.entry + '\n';
+        textToDownload = textToDownload + newRow;
+      });
+
+      const blob = new Blob([textToDownload], {
+        type: 'text/plain;charset=utf-8',
+      });
+      const displayTitle = 'Explore';
+      const fileName = `${displayTitle}-logs-${dateTimeFormat(new Date())}.txt`;
+      saveAs(blob, fileName);
+    };
     const logsMetaItem: Array<LogsMetaItem | MetaItemProps> = [...meta];
 
     // Add deduplication info

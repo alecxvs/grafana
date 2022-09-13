@@ -121,8 +121,8 @@ function getNextSineWaveSleepDuration() {
 }
 
 async function main() {
-  for (let step = 0; step < 300; step++) {
-    await sleep(getNextSineWaveSleepDuration());
+  for (let step = 0; step < 3000; step++) {
+    await sleep(100);
     const timestampMs = new Date().getTime();
     const item = getRandomLogItem(step + 1)
     lokiSendLogLine(timestampMs, JSON.stringify(item), {place:'moon', source: 'data'});
